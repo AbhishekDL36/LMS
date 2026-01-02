@@ -10,7 +10,7 @@ const router = express.Router();
 // ============================================
 router.post('/register', async (req, res) => {
   try {
-    // Get data from request body
+    // Get data from request body 
     const { name, email, password, role } = req.body;
 
     // Check if all required fields are provided
@@ -24,16 +24,20 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Create new user
     const newUser = new User({
       name,
       email,
-      password,
+      password: hashedPassword,
       role: role || 'student', // Default to student if role not provided
     });
 
+
     // Save user to database
-    // Password will be hashed automatically in the pre-save hook
+    
     await newUser.save();
 
     // Send success response
@@ -46,6 +50,7 @@ router.post('/register', async (req, res) => {
         role: newUser.role,
       },
     });
+    
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ message: 'Server error during registration' });
