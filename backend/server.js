@@ -6,9 +6,11 @@ const connectDB = require('./config/db');
 // Routes
 const authRoutes = require('./routes/auth');
 const protectedRoutes = require('./routes/protected');
-const roleRoutes = require('./routes/roles'); // 👈 STEP-4
+const roleRoutes = require('./routes/roles');
 const courseRoutes = require('./routes/course');
 const lectureRoutes = require('./routes/lecture');
+const progressRoutes = require('./routes/progress');
+const watchTimeRoutes = require('./routes/watchTime'); 
 
 
 const app = express();
@@ -25,19 +27,21 @@ app.get('/', (req, res) => {
   res.json({ message: 'LMS API Server' });
 });
 
-// Step-2
+
 app.use('/api/auth', authRoutes);
 
-// Step-3
 app.use('/api/test', protectedRoutes);
 
-// Step-4 👇 IMPORTANT
 app.use('/api/role', roleRoutes);
 
 app.use('/api/course', courseRoutes);
 
-// Lecture routes
 app.use('/api/lecture', lectureRoutes);
+
+app.use('/api/progress', progressRoutes);
+
+app.use('/api/watch-time', watchTimeRoutes);
+
 
 // Server start
 const PORT = process.env.PORT || 5000;

@@ -11,7 +11,7 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
   try {
     // Get data from request body 
-    const { name, email, password, role } = req.body;
+    const { name, email, password,role} = req.body;
 
     // Check if all required fields are provided
     if (!name || !email || !password) {
