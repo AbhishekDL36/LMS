@@ -10,7 +10,9 @@ const roleRoutes = require('./routes/roles');
 const courseRoutes = require('./routes/course');
 const lectureRoutes = require('./routes/lecture');
 const progressRoutes = require('./routes/progress');
-const watchTimeRoutes = require('./routes/watchTime'); 
+const watchTimeRoutes = require('./routes/watchTime');
+const testRoutes = require('./routes/test');
+const assignmentRoutes = require('./routes/assignment'); 
 
 
 const app = express();
@@ -42,6 +44,9 @@ app.use('/api/progress', progressRoutes);
 
 app.use('/api/watch-time', watchTimeRoutes);
 
+app.use('/api/test', testRoutes);
+
+app.use('/api/assignment', assignmentRoutes);
 
 // Server start
 const PORT = process.env.PORT || 5000;
