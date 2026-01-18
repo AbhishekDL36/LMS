@@ -11,7 +11,7 @@ const Dashboard = () => {
   // Fetch enrolled courses when component mounts
   useEffect(() => {
     fetchCourses();
-  }, []);
+  },[]);
 
   // Fetch courses from backend
   const fetchCourses = async () => {

@@ -3,6 +3,8 @@ import ProtectedRoute from '../components/ProtectedRoute';
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
 import CourseDetail from '../pages/CourseDetail';
+import Quiz from '../pages/Quiz';
+import Assignment from '../pages/Assignment';
 
 // Define all routes using createBrowserRouter
 const router = createBrowserRouter([
@@ -27,6 +29,26 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <CourseDetail />
+      </ProtectedRoute>
+    ),
+  },
+
+  // Quiz route - students take quiz for a course
+  {
+    path: '/course/:courseId/quiz/:testId',
+    element: (
+      <ProtectedRoute>
+        <Quiz />
+      </ProtectedRoute>
+    ),
+  },
+
+  // Assignment route - students view and submit assignments for a course
+  {
+    path: '/course/:courseId/assignment',
+    element: (
+      <ProtectedRoute>
+        <Assignment />
       </ProtectedRoute>
     ),
   },
