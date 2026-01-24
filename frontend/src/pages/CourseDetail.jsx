@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { getToken } from '../utils/auth';
+import { Link } from 'react-router-dom';
 
 const CourseDetail = () => {
   // Get courseId from URL
@@ -11,6 +12,9 @@ const CourseDetail = () => {
   const [selectedLecture, setSelectedLecture] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [quizzes, setQuizzes] = useState([]);
+const [assignments, setAssignments] = useState([]);
+
 
   // Ref to access video element
   const videoRef = useRef(null);
@@ -18,6 +22,8 @@ const CourseDetail = () => {
   // Fetch lectures when component mounts or courseId changes
   useEffect(() => {
     fetchLectures();
+    fetchQuizzes();
+  fetchAssignments();
   }, [courseId]);
 
   // Fetch lectures for this course from backend
@@ -60,6 +66,51 @@ const CourseDetail = () => {
       setLoading(false);
     }
   };
+
+  const fetchQuizzes = async () => {
+  try {
+    const token = getToken();
+
+    const res = await fetch(
+      `http://localhost:5000/api/test/course/${courseId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await res.json();
+    if (res.ok) {
+      setQuizzes(data.tests || []);
+    }
+  } catch (err) {
+    console.error("Fetch quizzes error", err);
+  }
+};
+
+const fetchAssignments = async () => {
+  try {
+    const token = getToken();
+
+    const res = await fetch(
+      `http://localhost:5000/api/assignment/course/${courseId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await res.json();
+    if (res.ok) {
+      setAssignments(data.assignments || []);
+    }
+  } catch (err) {
+    console.error("Fetch assignments error", err);
+  }
+};
+
 
   // Handle when video is paused (save watch time)
   const handleVideoPause = async () => {
@@ -127,6 +178,7 @@ const CourseDetail = () => {
                   {/* Video player */}
                   <div className="bg-black aspect-video flex items-center justify-center">
                     <video
+                    key={selectedLecture.id}
                       ref={videoRef}
                       controls
                       className="w-full h-full"
@@ -186,7 +238,52 @@ const CourseDetail = () => {
             No lectures found for this course.
           </p>
         )}
+
+        {/* QUIZ SECTION */}
+<div className="mt-10">
+  <h2 className="text-2xl font-bold mb-4">Quizzes</h2>
+
+  {quizzes.length === 0 && (
+    <p className="text-gray-600">No quizzes available.</p>
+  )}
+
+  {quizzes.map((quiz) => (
+    <Link
+      key={quiz._id}
+      to={`/course/${courseId}/quiz/${quiz._id}`}
+      className="block bg-white p-4 rounded shadow mb-3 hover:bg-blue-50"
+    >
+      <p className="font-semibold">{quiz.title}</p>
+      <p className="text-sm text-gray-600">Start Quiz</p>
+    </Link>
+  ))}
+</div>
+
+{/* ASSIGNMENT SECTION */}
+<div className="mt-10">
+  <h2 className="text-2xl font-bold mb-4">Assignments</h2>
+
+  {assignments.length === 0 && (
+    <p className="text-gray-600">No assignments available.</p>
+  )}
+
+  {assignments.map((a) => (
+    <Link
+      key={a._id}
+      to={`/course/${courseId}/assignment`}
+      className="block bg-white p-4 rounded shadow mb-3 hover:bg-green-50"
+    >
+      <p className="font-semibold">{a.title}</p>
+      <p className="text-sm text-gray-600">View Assignment</p>
+    </Link>
+  ))}
+</div>
       </main>
+
+      
+
+
+
     </div>
   );
 };

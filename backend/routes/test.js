@@ -127,6 +127,34 @@ router.post(
   }
 );
 
+
+// ============================================
+// GET ALL QUIZZES FOR A COURSE (STUDENT)
+// ============================================
+// GET /api/test/course/:courseId
+router.get(
+  '/course/:courseId',
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { courseId } = req.params;
+
+      // Find all tests linked to this course
+      const tests = await Test.find({ courseId }).select('_id title');
+
+      return res.status(200).json({
+        tests,
+      });
+    } catch (error) {
+      console.error('Error fetching quizzes by course:', error);
+      return res.status(500).json({
+        message: 'Error fetching quizzes',
+      });
+    }
+  }
+);
+
+
 // ============================================
 // ROUTE 3: Get test with questions (Student)
 // ============================================
