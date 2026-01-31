@@ -1,0 +1,72 @@
+PROJECT CLEANUP - REMOVE NEW AUTHENTICATION FILES
+===================================================
+
+STEP 1: Delete These 6 Files (New files that were created)
+==========================================================
+
+1. frontend/src/features/authSlice.js
+2. frontend/src/pages/Register.jsx
+3. frontend/src/styles/Auth.css
+4. frontend/.env.local
+5. backend/middleware/adminMiddleware.js
+6. backend/middleware/checkRole.js
+
+STEP 2: Optional - Delete Documentation Files
+===============================================
+
+These files were created to document the new auth system.
+You can delete them for a cleaner project:
+
+7. AUTHENTICATION_INDEX.md
+8. AUTH_QUICK_START.md
+9. AUTH_IMPLEMENTATION.md
+10. AUTH_CHECKLIST.md
+11. AUTHENTICATION_COMPLETE.md
+12. IMPLEMENTATION_SUMMARY.txt
+13. SETUP_COMMANDS.sh
+
+STEP 3: What Was Already Reverted
+==================================
+
+These files were modified and automatically restored to original:
+- backend/models/User.js
+- backend/routes/auth.js
+- backend/package.json
+- frontend/src/pages/Login.jsx
+- frontend/src/app/store.js
+- frontend/src/router/router.jsx
+- frontend/src/App.jsx
+- frontend/src/main.jsx
+- frontend/src/components/ProtectedRoute.jsx
+- frontend/package.json
+
+STEP 4: Reinstall Dependencies
+==============================
+
+After deleting the files, reinstall dependencies:
+
+cd backend
+npm install
+
+cd ../frontend
+npm install
+
+STEP 5: Test the Application
+=============================
+
+npm run dev (in both folders)
+
+Open http://localhost:5173
+
+Test Google OAuth login - should work as before!
+
+FINAL STATE
+===========
+
+✅ Project back to original working state
+✅ Google OAuth only
+✅ No email/password auth
+✅ No OTP system
+✅ Clean codebase
+
+You're all set! The project is exactly as it was before.

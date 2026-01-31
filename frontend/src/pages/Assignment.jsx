@@ -3,7 +3,7 @@
 // Shows list of assignments for the course
 
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   setAssignments,
@@ -314,7 +314,17 @@ export default function Assignment() {
                   </form>
                 )}
 
-                {/* After submission */}
+                {/* After submission - view result button */}
+                {submissionStatus && (
+                  <Link
+                    to={`/app/course/${courseId}/assignment/${selectedAssignment._id}/result`}
+                    className="block w-full text-center bg-blue-500 text-white py-2 rounded-lg font-bold hover:bg-blue-600 transition mb-2"
+                  >
+                    View Result
+                  </Link>
+                )}
+
+                {/* After submission - submit another button */}
                 {submissionStatus && (
                   <button
                     onClick={() => {

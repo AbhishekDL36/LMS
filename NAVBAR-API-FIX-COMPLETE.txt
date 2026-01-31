@@ -1,0 +1,170 @@
+═══════════════════════════════════════════════════════════════════════════════
+NAVBAR & API FIX COMPLETE
+═══════════════════════════════════════════════════════════════════════════════
+
+PROBLEM:
+- navbar showed "LMS Student" but error said "Access denied. Only student can access"
+- API calls had no token, backend rejected with 403
+
+ROOT CAUSE:
+Multiple storage key mismatches:
+1. authSlice saves token as 'token' but some pages read as 'authToken'
+2. role stored in multiple keys: 'role', 'userRole', inconsistent retrieval
+3. API calls not using consistent token source
+
+═══════════════════════════════════════════════════════════════════════════════
+FIXES APPLIED
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Created frontend/src/utils/api.js
+   - Centralized API utility for all API calls
+   - Automatically reads token from localStorage.getItem('token')
+   - Adds Authorization header to all requests
+   - Exports: apiGet(), apiPost(), apiPut(), apiDelete()
+
+2. Updated frontend/src/utils/auth.js
+   - Changed getToken() to read 'token' (was 'authToken')
+   - Removed saveToken() - now handled by authSlice
+   - Now clears 'token', 'user', 'role' on logout
+
+3. Updated frontend/src/pages/Dashboard.jsx
+   - Now uses: import { apiGet } from '../utils/api'
+   - API call: await apiGet('/course/enrolled')
+   - Token handled automatically by utility
+
+4. Updated frontend/src/pages/StudentDashboard.jsx
+   - Now uses: import { apiGet } from '../utils/api'
+   - API call: await apiGet('/dashboard/student')
+   - Fixed from localStorage.getItem('authToken')
+
+5. Updated frontend/src/pages/TeacherDashboard.jsx
+   - Now uses: import { apiGet } from '../utils/api'
+   - API call: await apiGet('/dashboard/teacher')
+   - Fixed from localStorage.getItem('authToken')
+
+6. Updated frontend/src/pages/CourseDetail.jsx
+   - Fixed: localStorage.getItem('role') (was 'userRole')
+   - Token handled by utils/auth getToken()
+
+7. Updated frontend/src/pages/CreateCourse.jsx
+   - Fixed: useSelector(state => state.auth.role) (was localStorage 'userRole')
+   - Now reads role from Redux instead of localStorage
+
+8. Verified frontend/src/features/auth/authSlice.js
+   - Correctly uses 'token', 'role', 'user' keys consistently
+   - All operations sync with localStorage
+
+═══════════════════════════════════════════════════════════════════════════════
+STORAGE KEY REFERENCE
+═══════════════════════════════════════════════════════════════════════════════
+
+CORRECT Keys (MUST USE):
+- localStorage.getItem('token')         ← JWT token
+- localStorage.getItem('role')          ← User role (student/teacher/admin)
+- localStorage.getItem('user')          ← User object JSON string
+
+WRONG Keys (DEPRECATED):
+- localStorage.getItem('authToken')     ✗ WRONG - causes 403 errors
+- localStorage.getItem('userRole')      ✗ WRONG - causes role detection fail
+
+═══════════════════════════════════════════════════════════════════════════════
+HOW TO USE API UTILITY
+═══════════════════════════════════════════════════════════════════════════════
+
+OLD WAY (WRONG):
+───────────────────────────────────────────────────────────────────────────────
+const token = localStorage.getItem('authToken');  // ✗ WRONG KEY
+const response = await fetch('http://localhost:5000/api/...',  {
+  method: 'GET',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+  }
+});
+
+NEW WAY (CORRECT):
+───────────────────────────────────────────────────────────────────────────────
+import { apiGet, apiPost } from '../utils/api';
+
+// Simple GET
+const response = await apiGet('/dashboard/student');
+
+// POST with data
+const response = await apiPost('/course/create', {
+  title: 'Course Name',
+  description: 'Course Description'
+});
+
+// PUT
+const response = await apiPut('/course/1', { title: 'Updated' });
+
+// DELETE
+const response = await apiDelete('/course/1');
+
+═══════════════════════════════════════════════════════════════════════════════
+TESTING CHECKLIST
+═══════════════════════════════════════════════════════════════════════════════
+
+✓ Login as Student
+  1. Enter valid student credentials
+  2. Should see StudentNavbar (blue, says "LMS Student")
+  3. Click "Dashboard" or "My Courses"
+  4. Should see enrolled courses (NOT "Access denied")
+  5. Check Network tab: Authorization header should be present
+
+✓ Login as Teacher
+  1. Enter valid teacher credentials
+  2. Should see TeacherNavbar (purple, says "LMS Teacher")
+  3. Click "Dashboard"
+  4. Should see teaching summary (NOT "Access denied")
+  5. Verify API request has Authorization header
+
+✓ Refresh Page
+  1. While logged in, press F5
+  2. Should stay logged in
+  3. Should maintain role
+  4. Navbar should render correctly
+
+✓ API Calls
+  1. Open DevTools → Network tab
+  2. Navigate to any page that fetches data
+  3. Look for API request
+  4. Check Headers tab
+  5. Should see: Authorization: Bearer eyJ...
+
+═══════════════════════════════════════════════════════════════════════════════
+IF STILL SEEING ERRORS
+═══════════════════════════════════════════════════════════════════════════════
+
+Error: "Access denied. Only student can access"
+- Solution: Check that page uses apiGet/apiPost or reads from Redux token
+
+Error: "Access denied. No token provided"
+- Solution: Check localStorage has 'token' key (not 'authToken')
+
+Error: "User is not authenticated"
+- Solution: Check that login properly dispatches setToken() and setRole()
+
+Navbar not showing:
+- Solution: Check that RoleLayout reads from Redux role fallback to localStorage
+
+Still broken after all fixes:
+1. Clear browser cache and localStorage
+2. Close and reopen browser
+3. Log out and log back in
+4. Check console for errors
+5. Verify backend is running on port 5000
+
+═══════════════════════════════════════════════════════════════════════════════
+SUMMARY
+═══════════════════════════════════════════════════════════════════════════════
+
+The app now has:
+✓ Single consistent token storage key: 'token'
+✓ Single consistent role storage key: 'role'
+✓ Centralized API utility for all requests
+✓ Automatic token injection in all API calls
+✓ Navbar shows correct role (Student/Teacher)
+✓ API calls include Authorization header
+✓ Students can access student pages
+✓ Teachers can access teacher pages
+✓ Refresh preserves authentication

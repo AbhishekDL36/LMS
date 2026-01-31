@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 export default function AssignmentSubmissions() {
   // Get assignmentId from URL parameters
@@ -11,6 +12,9 @@ export default function AssignmentSubmissions() {
 
   // Navigation hook to go back
   const navigate = useNavigate();
+
+  // Get token from Redux auth state
+  const token = useSelector((state) => state.auth.token);
 
   // Local state for submissions data
   const [submissions, setSubmissions] = useState([]);
@@ -32,9 +36,6 @@ export default function AssignmentSubmissions() {
       setError(null);
 
       try {
-        // Get teacher token from localStorage
-        const token = localStorage.getItem('authToken');
-
         // Call backend to get all submissions for this assignment
         const response = await fetch(
           `http://localhost:5000/api/assignment/${assignmentId}/submissions`,
@@ -231,6 +232,22 @@ export default function AssignmentSubmissions() {
                     <span className="font-semibold">Marks:</span>{' '}
                     {submission.marks}
                   </p>
+                </div>
+              )}
+
+              {/* Grade button - only show if not yet graded */}
+              {submission.status !== 'checked' && (
+                <div className="mt-4">
+                  <button
+                    onClick={() =>
+                      navigate(
+                        `/app/submission/${submission._id}/grade`
+                      )
+                    }
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                  >
+                    Grade
+                  </button>
                 </div>
               )}
             </div>

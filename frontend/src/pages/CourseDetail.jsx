@@ -7,6 +7,16 @@ const CourseDetail = () => {
   // Get courseId from URL
   const { courseId } = useParams();
 
+  // ============================================
+  // ROLE DETECTION - STUDENT VS TEACHER
+  // ============================================
+  // Get user role from localStorage
+  // Students: watch videos, save time, see progress
+  // Teachers: view their course content, no watch-time saving
+  const userRole = localStorage.getItem('role');
+  const isTeacher = userRole === 'teacher';
+  const isStudent = userRole === 'student';
+
   // State for lectures and selected lecture
   const [lectures, setLectures] = useState([]);
   const [selectedLecture, setSelectedLecture] = useState(null);
@@ -23,8 +33,90 @@ const [assignments, setAssignments] = useState([]);
   useEffect(() => {
     fetchLectures();
     fetchQuizzes();
-  fetchAssignments();
+    fetchAssignments();
   }, [courseId]);
+
+  // ============================================
+  // FETCH LAST WATCHED TIME FOR SELECTED LECTURE
+  // ============================================
+  // This function fetches the saved watch time from backend
+  const fetchLastWatchTime = async (lectureId) => {
+    try {
+      // Get token from localStorage
+      const token = getToken();
+
+      // Call backend API to get last watch time
+      const response = await fetch(
+        `http://localhost:5000/api/watch-time/lecture/${lectureId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Check if request was successful
+      if (!response.ok) {
+        console.log('No previous watch time found for this lecture');
+        return null;
+      }
+
+      // Parse response
+      const data = await response.json();
+
+      // Return saved watch time (in seconds)
+      return data.currentTime || 0;
+    } catch (err) {
+      console.error('Error fetching watch time:', err);
+      return null;
+    }
+  };
+
+  // ============================================
+  // APPLY WATCH TIME WHEN METADATA LOADS
+  // ============================================
+  // This function applies the saved watch time to the video
+  const handleVideoLoadedMetadata = async () => {
+    // Only proceed if we have a selected lecture and video element
+    if (!selectedLecture || !videoRef.current) {
+      return;
+    }
+
+    try {
+      // Fetch the last watched time for this lecture
+      const savedTime = await fetchLastWatchTime(selectedLecture.id);
+
+      // If we have a saved time, apply it to the video
+      if (savedTime && savedTime > 0) {
+        // Set video to resume from last watched time
+        videoRef.current.currentTime = savedTime;
+        console.log(`Video resumed from ${savedTime} seconds`);
+      }
+    } catch (err) {
+      console.error('Error applying watch time:', err);
+    }
+  };
+
+  // ============================================
+  // APPLY WATCH TIME WHEN LECTURE CHANGES
+  // ============================================
+  // When user selects a new lecture, wait for metadata to load
+  // then apply the saved watch time for that lecture
+  useEffect(() => {
+    // If we have a selected lecture, set up the metadata load handler
+    if (selectedLecture && videoRef.current) {
+      // Add event listener for when video metadata loads
+      const videoElement = videoRef.current;
+      videoElement.addEventListener('loadedmetadata', handleVideoLoadedMetadata);
+
+      // Cleanup: remove event listener when component unmounts or lecture changes
+      return () => {
+        videoElement.removeEventListener('loadedmetadata', handleVideoLoadedMetadata);
+      };
+    }
+  }, [selectedLecture]);
 
   // Fetch lectures for this course from backend
   const fetchLectures = async () => {
@@ -113,9 +205,21 @@ const fetchAssignments = async () => {
 
 
   // Handle when video is paused (save watch time)
+  // NOTE: Only students save watch time
+  // Teachers just view content without saving progress
   const handleVideoPause = async () => {
     // Only save if we have a selected lecture and video
     if (!selectedLecture || !videoRef.current) {
+      return;
+    }
+
+    // ============================================
+    // ONLY STUDENTS SAVE WATCH TIME
+    // ============================================
+    // If teacher is viewing, don't save watch time
+    // Teachers are reviewing content, not learning
+    if (!isStudent) {
+      console.log('Teacher viewing - watch time not saved');
       return;
     }
 
@@ -126,7 +230,7 @@ const fetchAssignments = async () => {
       // Get token from localStorage
       const token = getToken();
 
-      // Send watch time to backend
+      // Send watch time to backend (STUDENTS ONLY)
       await fetch('http://localhost:5000/api/watch-time/save', {
         method: 'POST',
         headers: {
@@ -150,7 +254,20 @@ const fetchAssignments = async () => {
       {/* Header */}
       <header className="bg-blue-600 text-white py-6 shadow">
         <div className="max-w-6xl mx-auto px-4">
-          <h1 className="text-3xl font-bold">Course Details</h1>
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold">
+              {isTeacher ? 'Course Content (Teacher View)' : 'Course Details'}
+            </h1>
+            {/* View Progress button - STUDENTS ONLY */}
+            {isStudent && (
+              <Link
+                to={`/app/course/${courseId}/progress`}
+                className="bg-white text-blue-600 px-4 py-2 rounded font-medium hover:bg-gray-100 transition"
+              >
+                View Progress
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 
@@ -239,45 +356,49 @@ const fetchAssignments = async () => {
           </p>
         )}
 
-        {/* QUIZ SECTION */}
-<div className="mt-10">
-  <h2 className="text-2xl font-bold mb-4">Quizzes</h2>
+        {/* QUIZ SECTION - STUDENTS ONLY */}
+        {isStudent && (
+          <div className="mt-10">
+            <h2 className="text-2xl font-bold mb-4">Quizzes</h2>
 
-  {quizzes.length === 0 && (
-    <p className="text-gray-600">No quizzes available.</p>
-  )}
+            {quizzes.length === 0 && (
+              <p className="text-gray-600">No quizzes available.</p>
+            )}
 
-  {quizzes.map((quiz) => (
-    <Link
-      key={quiz._id}
-      to={`/course/${courseId}/quiz/${quiz._id}`}
-      className="block bg-white p-4 rounded shadow mb-3 hover:bg-blue-50"
-    >
-      <p className="font-semibold">{quiz.title}</p>
-      <p className="text-sm text-gray-600">Start Quiz</p>
-    </Link>
-  ))}
-</div>
+            {quizzes.map((quiz) => (
+              <Link
+                key={quiz._id}
+                to={`/app/course/${courseId}/quiz/${quiz._id}`}
+                className="block bg-white p-4 rounded shadow mb-3 hover:bg-blue-50"
+              >
+                <p className="font-semibold">{quiz.title}</p>
+                <p className="text-sm text-gray-600">Start Quiz</p>
+              </Link>
+            ))}
+          </div>
+        )}
 
-{/* ASSIGNMENT SECTION */}
-<div className="mt-10">
-  <h2 className="text-2xl font-bold mb-4">Assignments</h2>
+        {/* ASSIGNMENT SECTION - STUDENTS ONLY */}
+        {isStudent && (
+          <div className="mt-10">
+            <h2 className="text-2xl font-bold mb-4">Assignments</h2>
 
-  {assignments.length === 0 && (
-    <p className="text-gray-600">No assignments available.</p>
-  )}
+            {assignments.length === 0 && (
+              <p className="text-gray-600">No assignments available.</p>
+            )}
 
-  {assignments.map((a) => (
-    <Link
-      key={a._id}
-      to={`/course/${courseId}/assignment`}
-      className="block bg-white p-4 rounded shadow mb-3 hover:bg-green-50"
-    >
-      <p className="font-semibold">{a.title}</p>
-      <p className="text-sm text-gray-600">View Assignment</p>
-    </Link>
-  ))}
-</div>
+            {assignments.map((a) => (
+              <Link
+                key={a._id}
+                to={`/app/course/${courseId}/assignment`}
+                className="block bg-white p-4 rounded shadow mb-3 hover:bg-green-50"
+              >
+                <p className="font-semibold">{a.title}</p>
+                <p className="text-sm text-gray-600">View Assignment</p>
+              </Link>
+            ))}
+          </div>
+        )}
       </main>
 
       
