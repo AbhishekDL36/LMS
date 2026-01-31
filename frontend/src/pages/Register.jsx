@@ -8,8 +8,7 @@ const Register = () => {
   const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -30,7 +29,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
@@ -55,8 +54,7 @@ const Register = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
+          name: formData.name,
           email: formData.email,
           password: formData.password,
           role: formData.role,
@@ -94,56 +92,34 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-8">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Create Account</h1>
           <p className="text-gray-600 mt-2">Join our LMS platform</p>
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
             {error}
           </div>
         )}
 
-        {/* Registration Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* First Name Input */}
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-              First Name
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              Full Name
             </label>
             <input
               type="text"
-              id="firstName"
-              name="firstName"
-              value={formData.firstName}
+              id="name"
+              name="name"
+              value={formData.name}
               onChange={handleInputChange}
-              placeholder="Enter your first name"
+              placeholder="Enter your full name"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition"
               disabled={loading}
             />
           </div>
 
-          {/* Last Name Input */}
-          <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-              Last Name
-            </label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleInputChange}
-              placeholder="Enter your last name"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition"
-              disabled={loading}
-            />
-          </div>
-
-          {/* Email Input */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
               Email Address
@@ -160,7 +136,6 @@ const Register = () => {
             />
           </div>
 
-          {/* Password Input */}
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
               Password
@@ -177,7 +152,6 @@ const Register = () => {
             />
           </div>
 
-          {/* Confirm Password Input */}
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
               Confirm Password
@@ -194,7 +168,6 @@ const Register = () => {
             />
           </div>
 
-          {/* Role Selection */}
           <div>
             <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
               Register as
@@ -212,7 +185,6 @@ const Register = () => {
             </select>
           </div>
 
-          {/* Register Button */}
           <button
             type="submit"
             disabled={loading}
@@ -222,7 +194,6 @@ const Register = () => {
           </button>
         </form>
 
-        {/* Login Link */}
         <div className="mt-8 pt-6 border-t border-gray-200 text-center">
           <p className="text-gray-600 text-sm">
             Already have an account?{' '}

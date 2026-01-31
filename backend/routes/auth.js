@@ -48,8 +48,7 @@ router.post('/login', async (req, res) => {
       token: jwtToken,
       user: {
         id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        name: user.name,
         email: user.email,
         role: user.role,
       },
@@ -67,10 +66,10 @@ router.post('/login', async (req, res) => {
 // Register new user with email and password
 router.post('/register', async (req, res) => {
   try {
-    const { firstName, lastName, email, password, role } = req.body;
+    const { name, email, password, role } = req.body;
 
     // Validation
-    if (!firstName || !lastName || !email || !password || !role) {
+    if (!name || !email || !password || !role) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
@@ -90,8 +89,7 @@ router.post('/register', async (req, res) => {
 
     // Create new user
     const user = new User({
-      firstName,
-      lastName,
+      name,
       email,
       password: hashedPassword,
       role,
@@ -115,8 +113,7 @@ router.post('/register', async (req, res) => {
       token: jwtToken,
       user: {
         id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        name: user.name,
         email: user.email,
         role: user.role,
       },

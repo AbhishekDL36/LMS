@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getToken } from '../utils/auth';
+import { apiGet } from '../utils/api';
 
 export default function AdminCourses() {
   const navigate = useNavigate();
@@ -18,21 +18,7 @@ export default function AdminCourses() {
       setError(null);
 
       try {
-        const token = getToken();
-
-        if (!token) {
-          throw new Error('Authentication token not found. Please login again.');
-        }
-
-        const response = await fetch(
-          'http://localhost:5000/api/admin/courses',
-          {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await apiGet('/admin/courses');
 
         if (!response.ok) {
           const errorData = await response.json();
@@ -135,21 +121,9 @@ export default function AdminCourses() {
                   </p>
                 </div>
 
-                {/* Course metadata */}
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <p className="text-gray-600">Category</p>
-                    <p className="font-medium text-gray-800">{course.category || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Level</p>
-                    <p className="font-medium text-gray-800">{course.level || 'N/A'}</p>
-                  </div>
-                </div>
-
                 {/* Created date */}
-                <p className="text-xs text-gray-500 mt-4">
-                  Created: {new Date(course.createdAt).toLocaleDateString()}
+                <p className="text-xs text-gray-500">
+                  Created: {course.createdAt ? new Date(course.createdAt).toLocaleDateString() : 'N/A'}
                 </p>
               </div>
             ))}

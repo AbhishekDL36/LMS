@@ -76,6 +76,68 @@ router.get(
 );
 
 // ============================================
+// GET ENROLLMENT DETAILS API
+// ============================================
+// GET /api/admin/enrollments
+// Protected route - Only admins can access
+// Returns detailed enrollment data with student and course names
+router.get(
+  '/enrollments',
+  authMiddleware,
+  roleMiddleware('admin'),
+  async (req, res) => {
+    try {
+      const adminId = req.user.id;
+      console.log(`Fetching enrollments for admin ${adminId}`);
+
+      // Get all enrollments with populated student and course info
+      const enrollments = await Enrollment.find()
+        .populate('studentId', 'name email')
+        .populate('courseId', 'title');
+
+      console.log(`Found ${enrollments.length} enrollments`);
+
+      // Group enrollments by course for easy viewing
+      const enrollmentsByStudents = enrollments.map((enrollment) => ({
+        _id: enrollment._id,
+        studentName: enrollment.studentId?.name || 'Unknown Student',
+        studentEmail: enrollment.studentId?.email || 'N/A',
+        courseName: enrollment.courseId?.title || 'Unknown Course',
+        courseId: enrollment.courseId?._id || 'N/A',
+      }));
+
+      // Also get enrollment summary by course
+      const courses = await Course.find();
+      const enrollmentsByCourse = await Promise.all(
+        courses.map(async (course) => {
+          const courseEnrollments = await Enrollment.countDocuments({
+            courseId: course._id,
+          });
+          return {
+            courseId: course._id,
+            courseName: course.title,
+            studentCount: courseEnrollments,
+          };
+        })
+      );
+
+      res.status(200).json({
+        message: 'Enrollments retrieved successfully',
+        totalEnrollments: enrollments.length,
+        enrollmentsByStudents,
+        enrollmentsByCourse,
+      });
+    } catch (error) {
+      console.error('Get enrollments error:', error.message);
+      res.status(500).json({
+        message: 'Error fetching enrollments',
+        error: error.message,
+      });
+    }
+  }
+);
+
+// ============================================
 // GET ALL USERS API
 // ============================================
 // GET /api/admin/users
