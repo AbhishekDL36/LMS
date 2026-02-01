@@ -28,6 +28,7 @@ import AdminDashboard from '../pages/AdminDashboard';
 import AdminUsers from '../pages/AdminUsers';
 import AdminTeachers from '../pages/AdminTeachers';
 import AdminCourses from '../pages/AdminCourses';
+import AllCourses from '../pages/AllCourses';
 
 // Define all routes using createBrowserRouter
 const router = createBrowserRouter([
@@ -101,6 +102,16 @@ const router = createBrowserRouter([
         element: (
           <RoleProtectedRoute requiredRole="student">
             <StudentDashboard />
+          </RoleProtectedRoute>
+        ),
+      },
+
+      // Student browse courses route - students browse and enroll in courses
+      {
+        path: 'student/courses',
+        element: (
+          <RoleProtectedRoute requiredRole="student">
+            <AllCourses />
           </RoleProtectedRoute>
         ),
       },

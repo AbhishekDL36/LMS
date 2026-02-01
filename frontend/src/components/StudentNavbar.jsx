@@ -53,6 +53,14 @@ const StudentNavbar = () => {
               My Courses
             </Link>
 
+            {/* Browse Courses link - uses React Router <Link> */}
+            <Link
+              to="/app/student/courses"
+              className="hover:bg-blue-700 px-3 py-2 rounded-lg transition"
+            >
+              Browse Courses
+            </Link>
+
             {/* Logout button - onClick handler (not a regular route) */}
             <button
               onClick={handleLogout}
