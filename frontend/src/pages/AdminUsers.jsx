@@ -28,7 +28,7 @@ export default function AdminUsers() {
         }
 
         const response = await fetch(
-          'http://localhost:5000/api/admin/users',
+          `${import.meta.env.VITE_API_URL}/admin/users`,
           {
             method: 'GET',
             headers: {
@@ -74,7 +74,7 @@ export default function AdminUsers() {
       const token = getToken();
 
       const response = await fetch(
-        `http://localhost:5000/api/admin/user/${userId}`,
+        `${import.meta.env.VITE_API_URL}/admin/user/${userId}`,
         {
           method: 'DELETE',
           headers: {

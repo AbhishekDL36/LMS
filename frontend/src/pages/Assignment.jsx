@@ -56,7 +56,7 @@ export default function Assignment() {
       try {
         // Call backend to get assignments for this course
         const response = await fetch(
-          `http://localhost:5000/api/assignment/course/${courseId}`,
+          `${import.meta.env.VITE_API_URL}/assignment/course/${courseId}`,
           {
             method: "GET",
             headers: {
@@ -106,7 +106,7 @@ export default function Assignment() {
     setSubmissionLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/assignment/${assignment._id}/my-submission`,
+        `${import.meta.env.VITE_API_URL}/assignment/${assignment._id}/my-submission`,
         {
           method: "GET",
           headers: {
@@ -149,7 +149,7 @@ export default function Assignment() {
     try {
       // Send submission to backend
       const response = await fetch(
-        "http://localhost:5000/api/assignment/submit",
+        `${import.meta.env.VITE_API_URL}/assignment/submit`,
         {
           method: "POST",
           headers: {

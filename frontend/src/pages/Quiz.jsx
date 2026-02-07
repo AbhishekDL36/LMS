@@ -40,7 +40,7 @@ export default function Quiz() {
       try {
         // Call backend to get quiz questions
         const response = await fetch(
-          `http://localhost:5000/api/test/${testId}`,
+          `${import.meta.env.VITE_API_URL}/test/${testId}`,
           {
             method: 'GET',
             headers: {
@@ -106,7 +106,7 @@ export default function Quiz() {
       }));
 
       // Send answers to backend
-      const response = await fetch('http://localhost:5000/api/test/submit', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/test/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

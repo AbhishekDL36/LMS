@@ -26,7 +26,7 @@ export default function TeacherSubmissions() {
       }
 
       // Fetch courses created by this teacher
-      const coursesResponse = await fetch('http://localhost:5000/api/course/teacher', {
+      const coursesResponse = await fetch(`${import.meta.env.VITE_API_URL}/course/teacher`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ export default function TeacherSubmissions() {
 
       // Fetch all pending submissions
       const submissionsResponse = await fetch(
-        'http://localhost:5000/api/assignment/submissions/pending',
+        `${import.meta.env.VITE_API_URL}/assignment/submissions/pending`,
         {
           method: 'GET',
           headers: {
@@ -60,7 +60,7 @@ export default function TeacherSubmissions() {
         for (const course of teacherCourses) {
           try {
             const res = await fetch(
-              `http://localhost:5000/api/assignment/course/${course._id}`,
+              `${import.meta.env.VITE_API_URL}/assignment/course/${course._id}`,
               {
                 method: 'GET',
                 headers: {

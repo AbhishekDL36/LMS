@@ -38,7 +38,7 @@ export default function AssignmentResult() {
       try {
         // Call backend to get student's submission result
         const response = await fetch(
-          `http://localhost:5000/api/assignment/${assignmentId}/my-submission`,
+          `${import.meta.env.VITE_API_URL}/assignment/${assignmentId}/my-submission`,
           {
             method: 'GET',
             headers: {

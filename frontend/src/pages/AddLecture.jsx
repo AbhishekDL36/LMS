@@ -96,14 +96,14 @@ const AddLecture = () => {
       // 1. Check authMiddleware (verify token)
       // 2. Check roleMiddleware('teacher') (verify user is teacher)
       // 3. Create lecture with courseId from request body
-      const response = await fetch('http://localhost:5000/api/lecture/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(lectureData),
-      });
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/lecture/create`, {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json',
+           'Authorization': `Bearer ${token}`,
+         },
+         body: JSON.stringify(lectureData),
+       });
 
       // Parse response
       const data = await response.json();

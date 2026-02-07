@@ -30,7 +30,7 @@ export default function AdminDashboard() {
 
         // Call backend to get admin stats
         const response = await fetch(
-          'http://localhost:5000/api/admin/stats',
+          `${import.meta.env.VITE_API_URL}/admin/stats`,
           {
             method: 'GET',
             headers: {
@@ -70,7 +70,7 @@ export default function AdminDashboard() {
       }
 
       const response = await fetch(
-        'http://localhost:5000/api/admin/enrollments',
+        `${import.meta.env.VITE_API_URL}/admin/enrollments`,
         {
           method: 'GET',
           headers: {

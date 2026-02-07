@@ -25,7 +25,7 @@ export default function AdminTeachers() {
         }
 
         const response = await fetch(
-          'http://localhost:5000/api/admin/teachers',
+          `${import.meta.env.VITE_API_URL}/admin/teachers`,
           {
             method: 'GET',
             headers: {

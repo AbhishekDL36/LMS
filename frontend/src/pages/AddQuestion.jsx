@@ -123,14 +123,14 @@ const AddQuestion = () => {
       // 2. Check roleMiddleware('teacher') (verify user is teacher)
       // 3. Validate correctAnswer exists in options
       // 4. Create question with testId reference
-      const response = await fetch('http://localhost:5000/api/test/question', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(questionData),
-      });
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/test/question`, {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json',
+           'Authorization': `Bearer ${token}`,
+         },
+         body: JSON.stringify(questionData),
+       });
 
       // Parse response
       const data = await response.json();

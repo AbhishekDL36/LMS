@@ -51,7 +51,7 @@ const QuizResults = () => {
         // 3. Find all TestResult documents for this testId
         // 4. Populate student info and format response
         const response = await fetch(
-          `http://localhost:5000/api/test/${testId}/results`,
+          `${import.meta.env.VITE_API_URL}/test/${testId}/results`,
           {
             method: 'GET',
             headers: {
